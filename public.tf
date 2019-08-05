@@ -17,6 +17,24 @@ resource "aws_security_group" "web" {
         protocol = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
     }
+/*
+  kube api server port
+*/
+    ingress {
+        from_port = 6443
+        to_port = 6443
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+/*
+  ssh port
+*/
+    ingress {
+        from_port = 22
+        to_port = 22
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
     ingress {
         from_port = -1
         to_port = -1
@@ -39,27 +57,27 @@ resource "aws_security_group" "web" {
 
     vpc_id = "${aws_vpc.default.id}"
 
-    tags {
+    tags = {
         Name = "WebServerSG"
     }
 }
 
-resource "aws_instance" "web-1" {
+resource "aws_instance" "master" {
     ami = "${lookup(var.amis, var.aws_region)}"
-    availability_zone = "eu-west-1a"
-    instance_type = "m1.small"
+    availability_zone = "ap-southeast-2a"
+    instance_type = "t1.micro"
     key_name = "${var.aws_key_name}"
     vpc_security_group_ids = ["${aws_security_group.web.id}"]
-    subnet_id = "${aws_subnet.eu-west-1a-public.id}"
+    subnet_id = "${aws_subnet.ap-southeast-2a-public.id}"
     associate_public_ip_address = true
     source_dest_check = false
 
-    tags {
+    tags = {
         Name = "Web Server 1"
     }
 }
 
-resource "aws_eip" "web-1" {
-    instance = "${aws_instance.web-1.id}"
+resource "aws_eip" "master" {
+    instance = "${aws_instance.master.id}"
     vpc = true
 }
