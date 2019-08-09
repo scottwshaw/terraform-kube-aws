@@ -1,1 +1,2 @@
 terraform.tfvars filter=git-crypt diff=git-crypt
+kube-ami-template.json filter=git-crypt diff=git-crypt

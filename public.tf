@@ -1,7 +1,7 @@
 /*
   Web Servers
 */
-resource "aws_security_group" "web" {
+resource "aws_security_group" "master" {
     name = "vpc_web"
     description = "Allow incoming HTTP connections."
 
@@ -42,20 +42,20 @@ resource "aws_security_group" "web" {
         cidr_blocks = ["0.0.0.0/0"]
     }
 
-    egress { # SQL Server
-        from_port = 1433
-        to_port = 1433
+    egress {
+        from_port = 80
+        to_port = 80
         protocol = "tcp"
-        cidr_blocks = ["${var.private_subnet_cidr}"]
+        cidr_blocks = ["0.0.0.0/0"]
     }
-    egress { # MySQL
-        from_port = 3306
-        to_port = 3306
+    egress {
+        from_port = 443
+        to_port = 443
         protocol = "tcp"
-        cidr_blocks = ["${var.private_subnet_cidr}"]
+        cidr_blocks = ["0.0.0.0/0"]
     }
 
-    vpc_id = "${aws_vpc.default.id}"
+  vpc_id = "${aws_vpc.default.id}"
 
     tags = {
         Name = "WebServerSG"
@@ -63,20 +63,61 @@ resource "aws_security_group" "web" {
 }
 
 resource "aws_instance" "master" {
+  //  ami = "${lookup(var.amis, var.aws_region)}"
+  //  ami = "ami-000c2343cf03d7fd7"
+  ami = "ami-0390bc3cc44fc4a9f"
+  availability_zone = "ap-southeast-2a"
+  instance_type = "t2.medium"
+  key_name = "${var.aws_key_name}"
+  vpc_security_group_ids = ["${aws_security_group.master.id}"]
+  subnet_id = "${aws_subnet.ap-southeast-2a-public.id}"
+  associate_public_ip_address = true
+  source_dest_check = false
+  provisioner "remote-exec" {
+    script = "init-kube-master.sh"
+    connection {
+      host = "${self.public_ip}"
+      type = "ssh"
+      user = "ubuntu"
+      private_key = "${file(var.aws_key_path)}"
+    }
+  }
+  tags = {
+    Name = "Kube Master"
+  }
+}
+/*
+resource "aws_instance" "worker1" {
     ami = "${lookup(var.amis, var.aws_region)}"
     availability_zone = "ap-southeast-2a"
     instance_type = "t1.micro"
     key_name = "${var.aws_key_name}"
-    vpc_security_group_ids = ["${aws_security_group.web.id}"]
+    vpc_security_group_ids = ["${aws_security_group.master.id}"]
     subnet_id = "${aws_subnet.ap-southeast-2a-public.id}"
     associate_public_ip_address = true
     source_dest_check = false
 
     tags = {
-        Name = "Web Server 1"
+        Name = "Kube Worker 1"
     }
 }
 
+resource "aws_instance" "worker2" {
+    ami = "${lookup(var.amis, var.aws_region)}"
+    availability_zone = "ap-southeast-2a"
+    instance_type = "t1.micro"
+    key_name = "${var.aws_key_name}"
+    vpc_security_group_ids = ["${aws_security_group.master.id}"]
+    subnet_id = "${aws_subnet.ap-southeast-2a-public.id}"
+    associate_public_ip_address = true
+    source_dest_check = false
+
+    tags = {
+        Name = "Kube Worker 2"
+    }
+}
+
+*/
 resource "aws_eip" "master" {
     instance = "${aws_instance.master.id}"
     vpc = true

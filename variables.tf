@@ -12,7 +12,7 @@ variable "amis" {
     description = "AMIs by region"
     default = {
         eu-west-1 = "ami-f1810f86" # ubuntu 14.04 LTS
-        ap-southeast-2 = "ami-c4111aa7" # ubuntu ?? 
+        ap-southeast-2 = "ami-0ad923ecd2b2e245b" # ubuntu xenial 16.04 LTS
     }
 }
 

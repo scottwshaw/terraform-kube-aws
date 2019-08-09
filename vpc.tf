@@ -13,6 +13,7 @@ resource "aws_internet_gateway" "default" {
 /*
   NAT Instance
 */
+/*
 resource "aws_security_group" "nat" {
     name = "vpc_nat"
     description = "Allow traffic to pass from the private subnet to the internet"
@@ -74,7 +75,6 @@ resource "aws_security_group" "nat" {
     }
 }
 
-/*
 resource "aws_instance" "nat" {
     ami = "ami-30913f47" # this is a special ami preconfigured to do NAT
     availability_zone = "ap-southeast-2a"
@@ -131,6 +131,7 @@ resource "aws_route_table_association" "ap-southeast-2a-public" {
 /*
   Private Subnet
 */
+/*
 resource "aws_subnet" "ap-southeast-2a-private" {
     vpc_id = "${aws_vpc.default.id}"
 
@@ -142,7 +143,6 @@ resource "aws_subnet" "ap-southeast-2a-private" {
     }
 }
 
-/*
 resource "aws_route_table" "ap-southeast-2a-private" {
     vpc_id = "${aws_vpc.default.id}"
 
