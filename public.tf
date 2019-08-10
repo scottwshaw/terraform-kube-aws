@@ -54,6 +54,15 @@ resource "aws_security_group" "master" {
         protocol = "tcp"
         cidr_blocks = ["0.0.0.0/0"]
     }
+  //
+  //so workers can contact api server 
+  //
+  egress {
+    from_port = 6443
+    to_port = 6443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   vpc_id = "${aws_vpc.default.id}"
 
@@ -86,38 +95,38 @@ resource "aws_instance" "master" {
     Name = "Kube Master"
   }
 }
-/*
-resource "aws_instance" "worker1" {
-    ami = "${lookup(var.amis, var.aws_region)}"
-    availability_zone = "ap-southeast-2a"
-    instance_type = "t1.micro"
-    key_name = "${var.aws_key_name}"
-    vpc_security_group_ids = ["${aws_security_group.master.id}"]
-    subnet_id = "${aws_subnet.ap-southeast-2a-public.id}"
-    associate_public_ip_address = true
-    source_dest_check = false
 
-    tags = {
-        Name = "Kube Worker 1"
-    }
-}
+resource "aws_instance" "worker1" {
+  //    ami = "${lookup(var.amis, var.aws_region)}"
+  ami = "ami-0390bc3cc44fc4a9f"
+  availability_zone = "ap-southeast-2a"
+  instance_type = "t1.micro"
+  key_name = "${var.aws_key_name}"
+  vpc_security_group_ids = ["${aws_security_group.master.id}"]
+  subnet_id = "${aws_subnet.ap-southeast-2a-public.id}"
+  associate_public_ip_address = true
+  source_dest_check = false
+  
+  tags = {
+    Name = "Kube Worker 1"
+  }
+} 
 
 resource "aws_instance" "worker2" {
-    ami = "${lookup(var.amis, var.aws_region)}"
-    availability_zone = "ap-southeast-2a"
-    instance_type = "t1.micro"
-    key_name = "${var.aws_key_name}"
-    vpc_security_group_ids = ["${aws_security_group.master.id}"]
-    subnet_id = "${aws_subnet.ap-southeast-2a-public.id}"
-    associate_public_ip_address = true
-    source_dest_check = false
-
-    tags = {
-        Name = "Kube Worker 2"
-    }
+  //  ami = "${lookup(var.amis, var.aws_region)}"
+  ami = "ami-0390bc3cc44fc4a9f"
+  availability_zone = "ap-southeast-2a"
+  instance_type = "t1.micro"
+  key_name = "${var.aws_key_name}"
+  vpc_security_group_ids = ["${aws_security_group.master.id}"]
+  subnet_id = "${aws_subnet.ap-southeast-2a-public.id}"
+  associate_public_ip_address = true
+  source_dest_check = false 
+  tags = {
+    Name = "Kube Worker 2"
+  }
 }
 
-*/
 resource "aws_eip" "master" {
     instance = "${aws_instance.master.id}"
     vpc = true
