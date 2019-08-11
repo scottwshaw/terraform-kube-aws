@@ -1,8 +1,8 @@
 /*
-  Web Servers
+  Kube Nodes
 */
 resource "aws_security_group" "master" {
-    name = "vpc_web"
+    name = "vpc_kube"
     description = "Allow incoming HTTP connections."
 
     ingress {
@@ -74,7 +74,7 @@ resource "aws_security_group" "master" {
 resource "aws_instance" "master" {
   //  ami = "${lookup(var.amis, var.aws_region)}"
   //  ami = "ami-000c2343cf03d7fd7"
-  ami = "ami-0390bc3cc44fc4a9f"
+  ami = "ami-0390bc3cc44fc4a9f" // This is the ami I created with Packer
   availability_zone = "ap-southeast-2a"
   instance_type = "t2.medium"
   key_name = "${var.aws_key_name}"
@@ -98,7 +98,7 @@ resource "aws_instance" "master" {
 
 resource "aws_instance" "worker1" {
   //    ami = "${lookup(var.amis, var.aws_region)}"
-  ami = "ami-0390bc3cc44fc4a9f"
+  ami = "ami-0390bc3cc44fc4a9f" // This is the ami I created with Packer
   availability_zone = "ap-southeast-2a"
   instance_type = "t1.micro"
   key_name = "${var.aws_key_name}"
@@ -114,7 +114,7 @@ resource "aws_instance" "worker1" {
 
 resource "aws_instance" "worker2" {
   //  ami = "${lookup(var.amis, var.aws_region)}"
-  ami = "ami-0390bc3cc44fc4a9f"
+  ami = "ami-0390bc3cc44fc4a9f" // This is the ami I created with Packer
   availability_zone = "ap-southeast-2a"
   instance_type = "t1.micro"
   key_name = "${var.aws_key_name}"

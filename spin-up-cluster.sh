@@ -3,14 +3,22 @@ set -e
 set x
 source aws-keys.sh
 terraform apply -auto-approve -var-file=terraform.tfvars
-WORKER_DNS_NAMES=$(aws ec2 describe-instances --filters 'Name=tag:Name,Values=Kube Worker*'   --output text --query 'Reservations[*].Instances[*].PublicDnsName')
-MASTER_DNS_NAME=$(aws ec2 describe-instances --filters 'Name=tag:Name,Values=Kube Master'   --output text --query 'Reservations[*].Instances[*].PublicDnsName')
-MASTER_PRIVATE_IP=$(aws ec2 describe-instances --filters 'Name=tag:Name,Values=Kube Master'   --output text --query 'Reservations[*].Instances[*].PrivateIpAddress')
-JOIN_TOKEN=$(ssh -o CheckHostIP=no -i kcastudy01.pem ubuntu@$MASTER_DNS_NAME kubeadm token generate)
-JOIN_COMMAND=$(ssh -i kcastudy01.pem -o CheckHostIP=no ubuntu@$MASTER_DNS_NAME kubeadm token create $JOIN_TOKEN --print-join-command)
-for name in $WORKER_DNS_NAMES
+export WORKER_IP=$(aws ec2 describe-instances --filters 'Name=tag:Name,Values=Kube Worker*'   --output text --query 'Reservations[*].Instances[*].PublicIpAddress')
+export MASTER_IP=$(aws ec2 describe-instances --filters 'Name=tag:Name,Values=Kube Master'   --output text --query 'Reservations[*].Instances[*].PublicIpAddress')
+echo "workers are " $(aws ec2 describe-instances --filters 'Name=tag:Name,Values=Kube Worker*'   --output text --query 'Reservations[*].Instances[*].PublicIpAddress')
+echo "master is " $(aws ec2 describe-instances --filters 'Name=tag:Name,Values=Kube Master'   --output text --query 'Reservations[*].Instances[*].PublicIpAddress')
+ssh-keyscan -H $MASTER_IP >> ~/.ssh/known_hosts
+echo "getting join token"
+export JOIN_TOKEN=$(ssh -v -i kcastudy01.pem ubuntu@$MASTER_IP kubeadm token generate)
+echo "generating join command"
+export JOIN_COMMAND=$(ssh -i kcastudy01.pem ubuntu@$MASTER_IP kubeadm token create $JOIN_TOKEN --print-join-command)
+echo "joining cluster"
+for ip in $WORKER_IP
 do
-    ssh -i kcastudy01.pem -o CheckHostIP=no ubuntu@$name $JOIN_COMMAND
+    echo "scanning for key, ip=" $ip
+    ssh-keyscan -H $ip >> ~/.ssh/known_hosts
+    echo "joining"
+    ssh -i kcastudy01.pem ubuntu@$ip sudo $JOIN_COMMAND
 done
-echo "kube master name is " $MASTER_DNS_NAME
+echo "kube master IP is " $MASTER_IP
 
