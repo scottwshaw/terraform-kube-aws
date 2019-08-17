@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
 set x
-source ./aws-keys.sh
+export AWS_PROFILE=kcastudy-user-2
 terraform destroy -input=false -auto-approve -var-file=terraform.tfvars
 

@@ -98,9 +98,10 @@ resource "aws_instance" "master" {
 
 resource "aws_instance" "worker1" {
   //    ami = "${lookup(var.amis, var.aws_region)}"
-  ami = "ami-0390bc3cc44fc4a9f" // This is the ami I created with Packer
+  //ami = "ami-0390bc3cc44fc4a9f" // This is the ami I created with Packer
+  ami = "ami-022514100ec2a53f8" // This is the worker ami I created with Packer
   availability_zone = "ap-southeast-2a"
-  instance_type = "t1.micro"
+  instance_type = "t2.micro"
   key_name = "${var.aws_key_name}"
   vpc_security_group_ids = ["${aws_security_group.master.id}"]
   subnet_id = "${aws_subnet.ap-southeast-2a-public.id}"
@@ -114,9 +115,10 @@ resource "aws_instance" "worker1" {
 
 resource "aws_instance" "worker2" {
   //  ami = "${lookup(var.amis, var.aws_region)}"
-  ami = "ami-0390bc3cc44fc4a9f" // This is the ami I created with Packer
+  // ami = "ami-0390bc3cc44fc4a9f" // This is the ami I created with Packer
+  ami = "ami-022514100ec2a53f8" // This is the worker ami I created with Packer
   availability_zone = "ap-southeast-2a"
-  instance_type = "t1.micro"
+  instance_type = "t2.micro"
   key_name = "${var.aws_key_name}"
   vpc_security_group_ids = ["${aws_security_group.master.id}"]
   subnet_id = "${aws_subnet.ap-southeast-2a-public.id}"
