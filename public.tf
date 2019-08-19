@@ -82,6 +82,7 @@ resource "aws_instance" "master" {
   subnet_id = "${aws_subnet.ap-southeast-2a-public.id}"
   associate_public_ip_address = true
   source_dest_check = false
+/*
   provisioner "remote-exec" {
     script = "init-kube-master.sh"
     connection {
@@ -91,6 +92,7 @@ resource "aws_instance" "master" {
       private_key = "${file(var.aws_key_path)}"
     }
   }
+*/
   tags = {
     Name = "Kube Master"
   }
